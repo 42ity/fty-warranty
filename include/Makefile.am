@@ -6,6 +6,12 @@ include_HEADERS = \
     fty_warranty.h \
     fty_warranty_library.h
 
+# Changed because even if fty-warranty is stable, we get double-install error
+#if ENABLE_DRAFTS
+#include_HEADERS += \
+#    fty_warranty.h
+#
+#endif
 
 
 ################################################################################

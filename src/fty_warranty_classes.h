@@ -35,22 +35,12 @@
 //  Extra headers
 
 //  Opaque class structures to allow forward references
-#ifndef FTY_WARRANTY_T_DEFINED
-typedef struct _fty_warranty_t fty_warranty_t;
-#define FTY_WARRANTY_T_DEFINED
-#endif
 
 //  Internal API
 
-#include "fty_warranty.h"
 
 //  *** To avoid double-definitions, only define if building without draft ***
 #ifndef FTY_WARRANTY_BUILD_DRAFT_API
-
-//  *** Draft method, defined for internal use only ***
-//  Self test of this class.
-FTY_WARRANTY_PRIVATE void
-    fty_warranty_test (bool verbose);
 
 //  Self test for private classes
 FTY_WARRANTY_PRIVATE void

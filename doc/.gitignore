@@ -11,6 +11,8 @@
 *.xml7
 
 # Ignore the source doc texts generated from program sources
+fty_warranty.txt
+fty_warranty.doc
 biostimer-warranty-metric.txt
 biostimer-warranty-metric.doc
 

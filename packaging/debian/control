@@ -36,6 +36,29 @@ Build-Depends: debhelper (>= 9),
     asciidoc-base | asciidoc, xmlto,
     dh-autoreconf
 
+Package: libfty-warranty1
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: fty-warranty shared library
+ This package contains shared library for fty-warranty:
+ agent sending metrics about warranty expiration
+
+Package: libfty-warranty-dev
+Architecture: any
+Section: libdevel
+Depends:
+    ${misc:Depends},
+    libsodium-dev,
+    libzmq3-dev,
+    libczmq-dev,
+    libmlm-dev,
+    libfty-proto-dev,
+    libcxxtools-dev,
+    libtntdb-dev,
+    libfty-warranty1 (= ${binary:Version})
+Description: fty-warranty development tools
+ This package contains development files for fty-warranty:
+ agent sending metrics about warranty expiration
 
 Package: fty-warranty
 Architecture: any

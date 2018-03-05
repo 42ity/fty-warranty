@@ -1,0 +1,3 @@
+usr/include/*
+usr/lib/*/libfty_warranty.so
+usr/lib/*/pkgconfig/libfty_warranty.pc

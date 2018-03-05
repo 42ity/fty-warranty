@@ -21,7 +21,7 @@ save.xml
 *.lo
 
 # Executables
-src/fty-warranty_selftest
+src/fty_warranty_selftest
 src/biostimer-warranty-metric
 *.exe
 *.out

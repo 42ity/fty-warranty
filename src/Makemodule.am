@@ -13,8 +13,13 @@ lib_LTLIBRARIES += src/libfty_warranty.la
 pkgconfig_DATA = src/libfty_warranty.pc
 
 src_libfty_warranty_la_SOURCES = \
-    src/fty_warranty.cc \
     src/platform.h
+
+if ENABLE_DRAFTS
+src_libfty_warranty_la_SOURCES += \
+    src/fty_warranty.cc
+
+endif
 
 if ENABLE_DRAFTS
 src_libfty_warranty_la_SOURCES += \

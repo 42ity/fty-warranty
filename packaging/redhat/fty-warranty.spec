@@ -63,6 +63,43 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %description
 fty-warranty agent sending metrics about warranty expiration.
 
+%package -n libfty_warranty1
+Group:          System/Libraries
+Summary:        agent sending metrics about warranty expiration shared library
+
+%description -n libfty_warranty1
+This package contains shared library for fty-warranty: agent sending metrics about warranty expiration
+
+%post -n libfty_warranty1 -p /sbin/ldconfig
+%postun -n libfty_warranty1 -p /sbin/ldconfig
+
+%files -n libfty_warranty1
+%defattr(-,root,root)
+%{_libdir}/libfty_warranty.so.*
+
+%package devel
+Summary:        agent sending metrics about warranty expiration
+Group:          System/Libraries
+Requires:       libfty_warranty1 = %{version}
+Requires:       libsodium-devel
+Requires:       zeromq-devel
+Requires:       czmq-devel
+Requires:       malamute-devel
+Requires:       fty-proto-devel
+Requires:       cxxtools-devel
+Requires:       tntdb-devel
+
+%description devel
+agent sending metrics about warranty expiration development tools
+This package contains development files for fty-warranty: agent sending metrics about warranty expiration
+
+%files devel
+%defattr(-,root,root)
+%{_includedir}/*
+%{_libdir}/libfty_warranty.so
+%{_libdir}/pkgconfig/libfty_warranty.pc
+%{_mandir}/man3/*
+%{_mandir}/man7/*
 
 %prep
 

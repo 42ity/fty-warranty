@@ -43,10 +43,8 @@ typedef struct {
 static test_item_t
 all_tests [] = {
 #ifdef FTY_WARRANTY_BUILD_DRAFT_API
-// Tests for stable/draft private classes:
-// Now built only with --enable-drafts, so even stable builds are hidden behind the flag
-    { "fty_warranty", NULL, true, false, "fty_warranty_test" },
-    { "private_classes", NULL, false, false, "$ALL" }, // compat option for older projects
+// Tests for draft public classes:
+    { "fty_warranty", fty_warranty_test, false, true, NULL },
 #endif // FTY_WARRANTY_BUILD_DRAFT_API
     {NULL, NULL, 0, 0, NULL}          //  Sentinel
 };

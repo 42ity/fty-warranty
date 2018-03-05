@@ -37,9 +37,6 @@
 void
 fty_warranty_private_selftest (bool verbose, const char *subtest)
 {
-// Tests for stable private classes:
-    if (streq (subtest, "$ALL") || streq (subtest, "fty_warranty_test"))
-        fty_warranty_test (verbose);
 }
 /*
 ################################################################################

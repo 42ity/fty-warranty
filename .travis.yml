@@ -48,18 +48,18 @@ env:
   matrix:
     - BUILD_TYPE=default
     - BUILD_TYPE=default-Werror
-    - BUILD_TYPE=cmake
+#    - BUILD_TYPE=cmake
 #   - BUILD_TYPE=android
 #   - BUILD_TYPE=check-py
 
 pkg_deps_prereqs: &pkg_deps_prereqs
     - libsodium-dev
-    - libzmq3-dev
-    - libczmq-dev
-    - libmlm-dev
-    - libfty-proto-dev
-    - cxxtools-dev
-    - tntdb-dev
+#- libzmq3-dev
+#- libczmq-dev
+#- libmlm-dev
+#- libfty-proto-dev
+#- cxxtools-dev
+#- tntdb-dev
 
 pkg_deps_doctools: &pkg_deps_doctools
     - asciidoc

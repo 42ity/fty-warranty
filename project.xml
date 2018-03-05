@@ -62,7 +62,7 @@
     <!-- Note: the added fty-warranty class is currently a dummy
          to satisfy zproject expectations, but later the logic
          might move into it -->
-    <class name = "fty-warranty" private = "1" selftest = "1" />
+    <class name = "fty-warranty" selftest = "1" />
 
     <!--<main name = "warranty-metric">-->
     <main name = "biostimer-warranty-metric" service = "1" timer = "1" >

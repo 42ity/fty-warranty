@@ -79,9 +79,17 @@
 
 //  Opaque class structures to allow forward references
 //  These classes are stable or legacy and built in all releases
+//  Draft classes are by default not built in stable releases
+#ifdef FTY_WARRANTY_BUILD_DRAFT_API
+typedef struct _fty_warranty_t fty_warranty_t;
+#define FTY_WARRANTY_T_DEFINED
+#endif // FTY_WARRANTY_BUILD_DRAFT_API
 
 
 //  Public classes, each with its own header file
+#ifdef FTY_WARRANTY_BUILD_DRAFT_API
+#include "fty_warranty.h"
+#endif // FTY_WARRANTY_BUILD_DRAFT_API
 
 #ifdef FTY_WARRANTY_BUILD_DRAFT_API
 

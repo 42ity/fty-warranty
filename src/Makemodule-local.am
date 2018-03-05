@@ -4,3 +4,6 @@ WARRANTY_BASENAME=biostimer-warranty-metric
 install-exec-hook:
 	mkdir -p $(DESTDIR)$(LIBEXEC_DIRNAME) && \
 	mv -f $(DESTDIR)$(bindir)/$(WARRANTY_BASENAME) $(DESTDIR)$(LIBEXEC_DIRNAME)
+
+uninstall-hook:
+	rm -f $(DESTDIR)$(LIBEXEC_DIRNAME)/$(WARRANTY_BASENAME)
