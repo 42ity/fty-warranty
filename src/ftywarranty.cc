@@ -1,7 +1,7 @@
 /*  =========================================================================
-    fty_warranty - class description
+    ftywarranty - class description
 
-    Copyright (C) 2014 - 2017 Eaton
+    Copyright (C) 2014 - 2018 Eaton
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 
 /*
 @header
-    fty_warranty -
+    ftywarranty -
 @discuss
 @end
 */
@@ -30,18 +30,18 @@
 
 //  Structure of our class
 
-struct _fty_warranty_t {
+struct _ftywarranty_t {
     int filler;     //  Declare class properties here
 };
 
 
 //  --------------------------------------------------------------------------
-//  Create a new fty_warranty
+//  Create a new ftywarranty
 
-fty_warranty_t *
-fty_warranty_new (void)
+ftywarranty_t *
+ftywarranty_new (void)
 {
-    fty_warranty_t *self = (fty_warranty_t *) zmalloc (sizeof (fty_warranty_t));
+    ftywarranty_t *self = (ftywarranty_t *) zmalloc (sizeof (ftywarranty_t));
     assert (self);
     //  Initialize class properties here
     return self;
@@ -49,14 +49,14 @@ fty_warranty_new (void)
 
 
 //  --------------------------------------------------------------------------
-//  Destroy the fty_warranty
+//  Destroy the ftywarranty
 
 void
-fty_warranty_destroy (fty_warranty_t **self_p)
+ftywarranty_destroy (ftywarranty_t **self_p)
 {
     assert (self_p);
     if (*self_p) {
-        fty_warranty_t *self = *self_p;
+        ftywarranty_t *self = *self_p;
         //  Free class properties here
         //  Free object itself
         free (self);
@@ -81,15 +81,15 @@ fty_warranty_destroy (fty_warranty_t **self_p)
 #define SELFTEST_DIR_RW "src/selftest-rw"
 
 void
-fty_warranty_test (bool verbose)
+ftywarranty_test (bool verbose)
 {
-    printf (" * fty_warranty: ");
+    printf (" * ftywarranty: ");
 
     //  @selftest
     //  Simple create/destroy test
-    fty_warranty_t *self = fty_warranty_new ();
+    ftywarranty_t *self = ftywarranty_new ();
     assert (self);
-    fty_warranty_destroy (&self);
+    ftywarranty_destroy (&self);
     //  @end
     printf ("OK\n");
 }

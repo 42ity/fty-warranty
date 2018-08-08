@@ -1,5 +1,5 @@
 /*  =========================================================================
-    fty-warranty - Agent sending metrics about warranty expiration
+    ftywarranty - class description
 
     Copyright (C) 2014 - 2018 Eaton
 
@@ -19,12 +19,30 @@
     =========================================================================
 */
 
-#ifndef FTY_WARRANTY_H_H_INCLUDED
-#define FTY_WARRANTY_H_H_INCLUDED
+#ifndef FTYWARRANTY_H_INCLUDED
+#define FTYWARRANTY_H_INCLUDED
 
-//  Include the project library file
-#include "fty_warranty_library.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-//  Add your own public definitions here, if you need them
+//  @interface
+//  Create a new ftywarranty
+FTY_WARRANTY_EXPORT ftywarranty_t *
+    ftywarranty_new (void);
+
+//  Destroy the ftywarranty
+FTY_WARRANTY_EXPORT void
+    ftywarranty_destroy (ftywarranty_t **self_p);
+
+//  Self test of this class
+FTY_WARRANTY_EXPORT void
+    ftywarranty_test (bool verbose);
+
+//  @end
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

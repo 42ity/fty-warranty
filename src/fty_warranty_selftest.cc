@@ -52,7 +52,7 @@ static test_item_t
 all_tests [] = {
 #ifdef FTY_WARRANTY_BUILD_DRAFT_API
 // Tests for draft public classes:
-    { "fty_warranty", fty_warranty_test, false, true, NULL },
+    { "ftywarranty", ftywarranty_test, false, true, NULL },
 #endif // FTY_WARRANTY_BUILD_DRAFT_API
     {NULL, NULL, 0, 0, NULL}          //  Sentinel
 };

@@ -39,6 +39,7 @@
 //  Internal API
 
 
+
 //  *** To avoid double-definitions, only define if building without draft ***
 #ifndef FTY_WARRANTY_BUILD_DRAFT_API
 

@@ -17,7 +17,7 @@ src_libfty_warranty_la_SOURCES = \
 
 if ENABLE_DRAFTS
 src_libfty_warranty_la_SOURCES += \
-    src/fty_warranty.cc
+    src/ftywarranty.cc
 
 endif
 
