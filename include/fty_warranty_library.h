@@ -32,11 +32,11 @@
 //  External dependencies
 #include <czmq.h>
 #include <malamute.h>
-#include <ftyproto.h>
 #include <cxxtools/allocator.h>
 #include <tntdb.h>
-#include <fty_common_db.h>
 #include <fty_log.h>
+#include <ftyproto.h>
+#include <fty_common_db.h>
 
 //  FTY_WARRANTY version macros for compile-time API detection
 #define FTY_WARRANTY_VERSION_MAJOR 1

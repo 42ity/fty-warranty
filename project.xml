@@ -42,12 +42,6 @@
         repository="https://github.com/42ity/malamute.git"
         release = "1.0-FTY-master" />
 
-    <use project = "fty-proto" libname = "libfty_proto" header="ftyproto.h" prefix="fty_proto"
-        min_major = "1" min_minor = "0" min_patch = "0"
-        repository = "https://github.com/42ity/fty-proto.git"
-        test = "fty_proto_test" >
-        <use project = "malamute" />
-    </use>
 
     <use project = "cxxtools"
         test="cxxtools::Utf8Codec::Utf8Codec"
@@ -64,15 +58,6 @@
     <!-- use project = "tntdb" test="tntdb::connectCached" header="tntdb/connect.h" / -->
     <!-- use project = "tntdb" test="tntdb::Date::gmtime" header="tntdb/connect.h" / -->
 
-    <use project = "fty-common-db" libname = "libfty_common_db" header="fty_common_db.h"
-        repository = "https://github.com/42ity/fty-common-db.git"
-        test = "fty_commmon_db_selftest" >
-
-      <use project = "fty-common" libname = "libfty_common" header="fty_common.h"
-           repository = "https://github.com/42ity/fty-common.git"
-           release = "master" />
-    </use>
-
     <use project = "fty-common-logging" libname = "libfty_common_logging" header="fty_log.h"
         repository = "https://github.com/42ity/fty-common-logging.git"
         release = "master"
@@ -82,6 +67,22 @@
             repository = "https://github.com/42ity/log4cplus.git"
             release = "1.1.2-FTY-master"
             />
+    </use>
+
+    <use project = "fty-proto" libname = "libfty_proto" header="ftyproto.h" prefix="fty_proto"
+        min_major = "1" min_minor = "0" min_patch = "0"
+        repository = "https://github.com/42ity/fty-proto.git"
+        test = "fty_proto_test" >
+        <use project = "malamute" />
+    </use>
+
+    <use project = "fty-common-db" libname = "libfty_common_db" header="fty_common_db.h"
+        repository = "https://github.com/42ity/fty-common-db.git"
+        test = "fty_commmon_db_selftest" >
+
+      <use project = "fty-common" libname = "libfty_common" header="fty_common.h"
+           repository = "https://github.com/42ity/fty-common.git"
+           release = "master" />
     </use>
 
     <!-- Note: the added fty-warranty class is currently a dummy
