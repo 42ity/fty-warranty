@@ -1,9 +1,7 @@
 # This is a skeleton created by zproject.
 # You can add hand-written code here.
 ### Note: Customized after generation; take care upon regens
-
 save.xml
-
 # Object files
 *.o
 *.so
@@ -81,15 +79,7 @@ CMake*
 *.cmake
 
 # Repositories downloaded by CI integration scripts
-libsodium/
-libzmq/
-czmq/
-malamute/
-fty-proto/
-fty-common/
-fty-common-db/
-cxxtools/
-tntdb/
+tmp-deps/
 
 # Travis build area
 tmp/
@@ -145,9 +135,3 @@ nbproject/
 
 # editor backups
 *~
-
-# systemd .in templates
-!src/biostimer-warranty-metric.service.in
-src/biostimer-warranty-metric.service
-!src/biostimer-warranty-metric.timer.in
-src/biostimer-warranty-metric.timer

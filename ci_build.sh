@@ -454,7 +454,7 @@ default|default-Werror|default-with-docs|valgrind|clang-format-check)
         BASE_PWD=${PWD}
         echo "`date`: INFO: Building prerequisite 'fty-proto' from Git repository..." >&2
         cd ./tmp-deps
-        $CI_TIME git clone --quiet --depth 1 https://github.com/42ity/fty-proto.git fty-proto
+        $CI_TIME git clone --quiet --depth 1 -b master https://github.com/42ity/fty-proto.git fty-proto
         cd ./fty-proto
         CCACHE_BASEDIR=${PWD}
         export CCACHE_BASEDIR
@@ -487,7 +487,7 @@ default|default-Werror|default-with-docs|valgrind|clang-format-check)
         BASE_PWD=${PWD}
         echo "`date`: INFO: Building prerequisite 'fty-common' from Git repository..." >&2
         cd ./tmp-deps
-        $CI_TIME git clone --quiet --depth 1 -b master https://github.com/42ity/fty-common.git fty-common
+        $CI_TIME git clone --quiet --depth 1 https://github.com/42ity/fty-common.git fty-common
         cd ./fty-common
         CCACHE_BASEDIR=${PWD}
         export CCACHE_BASEDIR
@@ -520,7 +520,7 @@ default|default-Werror|default-with-docs|valgrind|clang-format-check)
         BASE_PWD=${PWD}
         echo "`date`: INFO: Building prerequisite 'fty-common-db' from Git repository..." >&2
         cd ./tmp-deps
-        $CI_TIME git clone --quiet --depth 1 https://github.com/42ity/fty-common-db.git fty-common-db
+        $CI_TIME git clone --quiet --depth 1 -b master https://github.com/42ity/fty-common-db.git fty-common-db
         cd ./fty-common-db
         CCACHE_BASEDIR=${PWD}
         export CCACHE_BASEDIR
@@ -563,7 +563,7 @@ default|default-Werror|default-with-docs|valgrind|clang-format-check)
         BASE_PWD=${PWD}
         echo "`date`: INFO: Building prerequisite 'fty-common-mlm' from Git repository..." >&2
         cd ./tmp-deps
-        $CI_TIME git clone --quiet --depth 1 https://github.com/42ity/fty-common-mlm.git fty-common-mlm
+        $CI_TIME git clone --quiet --depth 1 -b master https://github.com/42ity/fty-common-mlm.git fty-common-mlm
         cd ./fty-common-mlm
         CCACHE_BASEDIR=${PWD}
         export CCACHE_BASEDIR
