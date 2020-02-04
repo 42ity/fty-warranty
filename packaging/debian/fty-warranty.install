@@ -1,7 +1,5 @@
-### Note: this file was customized for paths
-usr/libexec/biostimer-warranty-metric
-###usr/bin/biostimer-warranty-metric
+usr/bin/biostimer-warranty-metric
 etc/fty-warranty/biostimer-warranty-metric.cfg
 lib/systemd/system/biostimer-warranty-metric.service
 lib/systemd/system/biostimer-warranty-metric.timer
-###/usr/lib/systemd/system/biostimer-warranty-metric.timer
+
