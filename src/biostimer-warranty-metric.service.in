@@ -3,8 +3,8 @@
 
 [Unit]
 Description=42ity-Timer service to send metrics about warranty date
-After=malamute.service fty-db-init.service
-Requires=malamute.service fty-db-init.service
+After=malamute.service fty-db.target
+Requires=malamute.service fty-db.target
 PartOf=bios.target
 
 [Service]
