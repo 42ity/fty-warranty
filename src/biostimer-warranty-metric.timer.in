@@ -3,7 +3,7 @@ Description=42ity-Timer to regularly send warranty metrics
 # For the timer unit, we just need it to tick. Until the EULA wizard is passed,
 # it should however suffice that the timer runs and occasionally tries to start
 # the service unsuccessfully once a day or so...
-After=fty-db.target
+After=malamute.service fty-db.target
 
 Requires = local-fs.target ipc-meta-setup.service
 After = local-fs.target ipc-meta-setup.service
