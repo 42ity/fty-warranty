@@ -1,13 +1,9 @@
 [Unit]
 Description=42ity-Timer to regularly send warranty metrics
-# For the timer unit, we need to break the dependency cycle with timers.target
-# being ancestor of network.target and so malamute that we do require, for
-# the actual service to run at least. Until the EULA wizard is passed, it
-# should however suffice that the timer runs and occasionally tries to start
-# the service unsuccessfully once a day...
-Wants=fty-db-init.service malamute.service
-# ...although even better, it should not try until the EULA wizard is passed.
-Requisite=fty-db-init.service malamute.service
+# For the timer unit, we just need it to tick. Until the EULA wizard is passed,
+# it should however suffice that the timer runs and occasionally tries to start
+# the service unsuccessfully once a day or so...
+Wants=malamute.service fty-db-init.service
 After=malamute.service fty-db-init.service
 
 Requires = local-fs.target ipc-meta-setup.service
