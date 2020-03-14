@@ -10,7 +10,7 @@ PartOf=bios.target
 [Service]
 Type=simple
 User=bios
-# TODO: Is it really a timer or an ordinary service? What is it intended to be?
+# This service is a timer implementation, runs once and is dead until next day
 #Restart=always
 EnvironmentFile=-@prefix@/share/bios/etc/default/bios
 EnvironmentFile=-@prefix@/share/bios/etc/default/bios__%n.conf
