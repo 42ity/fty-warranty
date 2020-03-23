@@ -14,8 +14,9 @@ PartOf=multi-user.target
 OnBootSec=60min
 ### Run every night
 OnCalendar=*-*-* 04:20:00
-# Do not record last-execution times
-Persistent=false
+# Run instantly if last run was skipped (e.g. system powered off)
+# But do not re-run if triggered early by e.g. bios.target restart or watchdog
+Persistent=true
 
 [Install]
 WantedBy=multi-user.target

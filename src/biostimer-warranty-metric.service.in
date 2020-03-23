@@ -25,5 +25,6 @@ EnvironmentFile=@sysconfdir@/default/bios-db-ro
 PermissionsStartOnly=true
 ExecStart=/usr/libexec/biostimer-warranty-metric
 
-[Install]
-WantedBy=bios.target
+# No [Install] section, trigger only by timer
+#[Install]
+#WantedBy=bios.target
