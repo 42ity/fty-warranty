@@ -49,8 +49,8 @@ uint32_t TTL = 24*60*60;//[s]
 int main (int argc, char *argv [])
 {
     ManageFtyLog::setInstanceFtylog(NAME, FTY_COMMON_LOGGING_DEFAULT_CFG);
-    mlm_client_t *client = mlm_client_new ();
-    assert (client);
+    //mlm_client_t *client = mlm_client_new ();
+    //assert (client);
 
     std::function<void(const tntdb::Row&)> cb = \
         [client](const tntdb::Row &row)
@@ -101,7 +101,7 @@ int main (int argc, char *argv [])
     }
 
     // to ensure all messages got published
-    zclock_sleep (500);
+    //zclock_sleep (500);
 
     exit (EXIT_SUCCESS);
 }
