@@ -53,7 +53,7 @@ int main (int argc, char *argv [])
     //assert (client);
 
     std::function<void(const tntdb::Row&)> cb = \
-        [client](const tntdb::Row &row)
+        [](const tntdb::Row &row)
         {
             std::string name;
             row["name"].get(name);
