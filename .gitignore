@@ -133,5 +133,4 @@ nbproject/
 *~
 # CMake in general
 builds/cmake/
-CMake*
 *.cmake
