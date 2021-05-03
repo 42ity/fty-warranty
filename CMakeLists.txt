@@ -28,7 +28,7 @@ etn_target(exe biostimer-warranty-metric
     TARGET_DESTINATION
         "${CMAKE_INSTALL_LIBEXECDIR}"
 )
- 
+
 # Agent config
 etn_configure_file(
     resources/biostimer-warranty-metric.cfg.in
