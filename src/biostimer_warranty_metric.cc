@@ -102,6 +102,7 @@ int main (int argc, char *argv [])
 
     // to ensure all messages got published
     zclock_sleep (500);
+    mlm_client_destroy (&client);
 
     exit (EXIT_SUCCESS);
 }
