@@ -31,6 +31,14 @@ src/fty_warranty_selftest
 *.app
 core
 
+# Generated Debian files
+packaging/debian/.debhelper/
+packaging/debian/debhelper-build-stamp
+packaging/debian/files
+packaging/debian/*.substvars
+packaging/debian/*.debhelper
+packaging/debian/fty-warranty/
+
 # Distcheck workspace and archives
 fty-warranty-*/
 fty-warranty-*.tar.gz
@@ -133,5 +141,5 @@ nbproject/
 *~
 # CMake in general
 builds/cmake/
-CMake*
 *.cmake
+obj-x86_64-linux-gnu/
