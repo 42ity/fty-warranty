@@ -13,18 +13,12 @@ find_package(fty-cmake PATHS ${CMAKE_BINARY_DIR}/fty-cmake)
 etn_target(exe biostimer-warranty-metric
     SOURCES
         src/biostimer_warranty_metric.cc
-        src/ftywarranty.cc
-        src/*.h
     USES_PRIVATE
-        czmq
-        mlm
         tntdb
         cxxtools
-        fty_proto
-        fty_common
+        fty_shm
         fty_common_db
         fty_common_logging
-        fty_shm
     TARGET_DESTINATION
         "${CMAKE_INSTALL_LIBEXECDIR}"
 )

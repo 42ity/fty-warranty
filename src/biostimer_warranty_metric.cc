@@ -19,89 +19,75 @@
     =========================================================================
 */
 
-/*
-@header
-    warranty_metric - Agent sending metrics about warranty expiration
-@discuss
-@end
-*/
+/// warranty_metric - Agent sending metrics about warranty expiration
 
-//#include "fty_expiration_classes.h"
-#include <functional>
-#include <malamute.h>
-#include <fty_log.h>
-#include <fty_proto.h>
-#include <tntdb.h>
 #include <fty_common_db_asset.h>
 #include <fty_common_db_dbpath.h>
-#include <fty_common_mlm_utils.h>
+#include <fty_log.h>
+#include <functional>
+#include <tntdb.h>
 #include <fty_shm.h>
+#include <chrono>
+#include <thread>
 
 #define NAME "warranty-metric"
-uint32_t TTL = 24*60*60;//[s]
+uint32_t TTL = 24 * 60 * 60; //[s]
 
-/*
- * Tool will send following messages on the stream METRICS
- *
- *  SUBJECT: end_warranty_date@device
- *           value now() - end_warranty_date
- */
-int main (int argc, char *argv [])
+/// Tool will send following messages on the stream METRICS
+///
+///  SUBJECT: end_warranty_date@device
+///           value now() - end_warranty_date
+int main(int /*argc*/, char** /*argv*/)
 {
     ManageFtyLog::setInstanceFtylog(NAME, FTY_COMMON_LOGGING_DEFAULT_CFG);
-    mlm_client_t *client = mlm_client_new ();
-    assert (client);
 
-    std::function<void(const tntdb::Row&)> cb = \
-        [client](const tntdb::Row &row)
+    std::function<void(const tntdb::Row&)> cb = [](const tntdb::Row& row) {
+        std::string name;
+        row["name"].get(name);
+
+        std::string keytag;
+        row["keytag"].get(keytag);
+
+        std::string date;
+        row["date"].get(date);
+
+        int day_diff;
         {
-            std::string name;
-            row["name"].get(name);
+            struct tm tm_ewd;
+            ::memset(&tm_ewd, 0, sizeof(struct tm));
 
-            std::string keytag;
-            row["keytag"].get(keytag);
-
-            std::string date;
-            row["date"].get(date);
-
-            int day_diff;
-            {
-                struct tm tm_ewd;
-                ::memset (&tm_ewd, 0, sizeof(struct tm));
-
-                char* ret = ::strptime (date.c_str(), "%Y-%m-%d", &tm_ewd);
-                if (ret == NULL) {
-                    log_error ("Cannot convert %s to date, skipping", date.c_str());
-                    return;
-                }
-
-                time_t ewd = ::mktime (&tm_ewd);
-                time_t now = ::time (NULL);
-                struct tm *tm_now_p;
-                tm_now_p = ::gmtime (&now);
-                tm_now_p->tm_hour = 0;
-                tm_now_p->tm_min = 0;
-                tm_now_p->tm_sec = 0;
-                now = ::mktime (tm_now_p);
-
-                // end_warranty_date (s) - now (s) -> to days
-                day_diff = std::ceil ((ewd - now) / (60*60*24));
-                log_debug ("day_diff: %d", day_diff);
+            char* ret = ::strptime(date.c_str(), "%Y-%m-%d", &tm_ewd);
+            if (ret == NULL) {
+                log_error("Cannot convert %s to date, skipping", date.c_str());
+                return;
             }
-            log_debug ("name: %s, keytag: %s, date: %s", name.c_str(), keytag.c_str(), date.c_str());
-            fty::shm::write_metric(name, keytag, std::to_string(day_diff),"day", 3*TTL);
-        };
+
+            time_t     ewd = ::mktime(&tm_ewd);
+            time_t     now = ::time(NULL);
+            struct tm* tm_now_p;
+            tm_now_p          = ::gmtime(&now);
+            tm_now_p->tm_hour = 0;
+            tm_now_p->tm_min  = 0;
+            tm_now_p->tm_sec  = 0;
+            now               = ::mktime(tm_now_p);
+
+            // end_warranty_date (s) - now (s) -> to days
+            day_diff = int(std::ceil((ewd - now) / (60 * 60 * 24)));
+            log_debug("day_diff: %d", day_diff);
+        }
+        log_debug("name: %s, keytag: %s, date: %s", name.c_str(), keytag.c_str(), date.c_str());
+        fty::shm::write_metric(name, keytag, std::to_string(day_diff), "day", int(3 * TTL));
+    };
 
     // unchecked errors with connection, the tool will fail otherwise
     tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-    int r = DBAssets::select_asset_element_all_with_warranty_end (conn, cb);
+    int               r    = DBAssets::select_asset_element_all_with_warranty_end(conn, cb);
     if (r == -1) {
-        log_error ("Error in element selection");
-        exit (EXIT_FAILURE);
+        log_error("Error in element selection");
+        exit(EXIT_FAILURE);
     }
 
-    // to ensure all messages got published
-    zclock_sleep (500);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    exit (EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
