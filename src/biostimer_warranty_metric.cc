@@ -75,7 +75,9 @@ int main(int /*argc*/, char** /*argv*/)
             day_diff = int(std::ceil((ewd - now) / (60 * 60 * 24)));
             log_debug("day_diff: %d", day_diff);
         }
+
         log_debug("name: %s, keytag: %s, date: %s", name.c_str(), keytag.c_str(), date.c_str());
+
         fty::shm::write_metric(name, keytag, std::to_string(day_diff), "day", int(3 * TTL));
     };
 
