@@ -1,0 +1,28 @@
+
+[Unit]
+Description=42ity-Timer service to send metrics about warranty date
+After=malamute.service fty-db.target
+Requires=malamute.service fty-db.target
+PartOf=bios.target
+
+[Service]
+Type=simple
+User=bios
+# TODO: Is it really a timer or an ordinary service? What is it intended to be?
+#Restart=always
+EnvironmentFile=-/usr/share/bios/etc/default/bios
+EnvironmentFile=-/usr/share/bios/etc/default/bios__%n.conf
+EnvironmentFile=-/usr/share/fty/etc/default/fty
+EnvironmentFile=-/usr/share/fty/etc/default/fty__%n.conf
+EnvironmentFile=-/etc/default/bios
+EnvironmentFile=-/etc/default/bios__%n.conf
+EnvironmentFile=-/etc/default/fty
+EnvironmentFile=-/etc/default/fty__%n.conf
+EnvironmentFile=/etc/default/bios-db-ro
+Environment="prefix=/usr"
+PermissionsStartOnly=true
+ExecStart=/usr/libexec/biostimer-warranty-metric
+
+# No [Install] section, trigger only by timer
+#[Install]
+#WantedBy=bios.target
