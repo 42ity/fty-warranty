@@ -1,6 +1,6 @@
 # fty-warranty
 
-Agent sending metrics about warranty expiration.
+Agent producing _end-warranty-date_ metrics in the shared memory.
 
 ## How to build
 
@@ -33,4 +33,4 @@ systemctl start fty-warranty
 
 ### Configuration file
 
-Configuration file - fty-warranty.cfg.
+__IGNORED__ Configuration file - fty-warranty.cfg.
