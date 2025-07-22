@@ -19,6 +19,7 @@ etn_target(exe biostimer-warranty-metric
         fty_common_db
         fty_common_logging
         fty_shm
+        fty_proto
     TARGET_DESTINATION
         "${CMAKE_INSTALL_LIBEXECDIR}"
 )

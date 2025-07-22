@@ -32,63 +32,77 @@
 #include <functional>
 
 static const char* AGENT_NAME = "fty-warranty";
-static const int DAY = 24 * 60 * 60; // one day (sec)
-static const int WARRANTY_TTL = 3 * DAY; // 3 days (sec)
+
+// compute the day diff from now to warranty date
+static int compute_date_distance(const std::string& date, int& day_diff)
+{
+    time_t warranty = 0; // warranty date
+    {
+        struct tm tm_ewd;
+        memset(&tm_ewd, 0, sizeof(tm_ewd));
+        char* ret = strptime(date.c_str(), "%Y-%m-%d", &tm_ewd);
+        if (!ret) {
+            log_error("%s: Cannot convert %s to date", AGENT_NAME, date.c_str());
+            return -1;
+        }
+        warranty = mktime(&tm_ewd); // epoch, sec
+    }
+
+    time_t now = time(NULL);
+    {
+        struct tm* tm_now_p = gmtime(&now);
+        if (!tm_now_p) {
+            log_error("%s: Cannot convert current time (error: %s)", AGENT_NAME, strerror(errno));
+            return -1;
+        }
+        tm_now_p->tm_hour = tm_now_p->tm_min = tm_now_p->tm_sec = 0;
+        now = mktime(tm_now_p); // day truncated, epoch, sec
+    }
+
+    // number of days below/after the warranty date
+    // >=0: the warranty expires in less than X days
+    //  <0: the warranty expired X days ago
+    day_diff = int(std::ceil((warranty - now) / (24 * 60 * 60)));
+    return 0;
+}
 
 int main(int /*argc*/, char** /*argv*/)
 {
     std::function<void(const tntdb::Row&)> cb = [] (const tntdb::Row& row) {
-        std::string name, keytag, date;
-        row["name"].get(name); // asset iname
-        row["date"].get(date); // date of warranty
-        row["keytag"].get(keytag);
+        // handle *only* active assets
+        std::string status;
+        row["status"].get(status);
+        if (status != "active") {
+            return;
+        }
 
         // REQUIRE keytag = end_warranty_date
+        std::string keytag;
+        row["keytag"].get(keytag);
         if (keytag != "end_warranty_date") {
             log_error("%s: Unexpected keytag (%s)", AGENT_NAME, keytag.c_str());
             return;
         }
 
-        int day_diff = 0;
-        {
-            time_t warranty = 0; // end_warranty_date
-            {
-                struct tm tm_ewd;
-                memset(&tm_ewd, 0, sizeof(tm_ewd));
-                char* ret = strptime(date.c_str(), "%Y-%m-%d", &tm_ewd);
-                if (!ret) {
-                    log_error("%s: Cannot convert %s to date", AGENT_NAME, date.c_str());
-                    return;
-                }
-                warranty = mktime(&tm_ewd);
-            }
+        // compute the day diff from now
+        std::string date;
+        row["date"].get(date); // warranty date
+        int day_diff{0}; // days
+        compute_date_distance(date, day_diff);
 
-            time_t now = time(NULL);
-            {
-                struct tm* tm_now_p = gmtime(&now);
-                /** if (!tm_now_p) {
-                    log_error("%s: Cannot convert current time (error: %s)", AGENT_NAME, strerror(errno));
-                    return;
-                } */
-                tm_now_p->tm_hour = 0;
-                tm_now_p->tm_min  = 0;
-                tm_now_p->tm_sec  = 0;
-                now = mktime(tm_now_p); // truncated day
-            }
-
-            // number of days below/after warranty date
-            // >=0: the warranty expires in less than X days
-            //  <0: the warranty expired X days ago
-            day_diff = int(std::ceil((warranty - now) / DAY));
-        }
+        std::string name;
+        row["name"].get(name); // asset iname
 
         // write the "end_warranty_date" metric
-        int r = fty::shm::write_metric(name, keytag, std::to_string(day_diff), "day", WARRANTY_TTL);
+        const int ttl = 12 * 60 * 60; // half a day (sec)
+        int r = fty::shm::write_metric(name, keytag, std::to_string(day_diff), "day", ttl);
         if (r == 0) {
-            log_info("%s: %s@%s = %d days", AGENT_NAME, keytag.c_str(), name.c_str(), day_diff);
+            log_info("%s: %s@%s = %d days (ttl: %d)",
+                AGENT_NAME, keytag.c_str(), name.c_str(), day_diff, ttl);
         }
         else {
-            log_error("%s: write_metric '%s@%s' failed (r: %d)", AGENT_NAME, keytag.c_str(), name.c_str(), r);
+            log_error("%s: write_metric '%s@%s' failed (r: %d)",
+                AGENT_NAME, keytag.c_str(), name.c_str(), r);
         }
     };
 
@@ -96,12 +110,29 @@ int main(int /*argc*/, char** /*argv*/)
 
     log_info("%s started", AGENT_NAME);
 
-    // unchecked errors with connection, the tool will fail otherwise
-    tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-    int r = DBAssets::select_asset_element_all_with_warranty_end(conn, cb);
-    if (r != 0) {
-        log_error("%s: Error in element selection (r: %d)", AGENT_NAME, r);
-        return EXIT_FAILURE;
+    // first, remove end_warranty_date metrics from shm
+    {
+        const int ttl{1}; // metric should be removed on the next reading
+        fty::shm::shmMetrics results;
+        fty::shm::read_metrics(".*", ".*end_warranty_date", results);
+        for (const auto& it : results) {
+            fty_proto_t* p = it;
+            if (p) {
+                log_info("%s: set %s@%s ttl to %d", AGENT_NAME, fty_proto_type(p), fty_proto_name(p), ttl);
+                fty_proto_set_ttl(p, ttl);
+                fty::shm::write_metric(p);
+            }
+        }
+    }
+
+    // finally, handle assets owning end_warranty_date attribute
+    {
+        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
+        int r = DBAssets::select_asset_element_all_with_warranty_end(conn, cb);
+        if (r != 0) {
+            log_error("%s: Error in element selection (r: %d)", AGENT_NAME, r);
+            return EXIT_FAILURE;
+        }
     }
 
     log_info("%s ended", AGENT_NAME);
