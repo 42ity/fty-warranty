@@ -12,7 +12,7 @@ find_package(fty-cmake PATHS ${CMAKE_BINARY_DIR}/fty-cmake)
 
 etn_target(exe biostimer-warranty-metric
     SOURCES
-        src/biostimer_warranty_metric.cc
+        src/*.cc
     USES_PRIVATE
         cxxtools
         tntdb

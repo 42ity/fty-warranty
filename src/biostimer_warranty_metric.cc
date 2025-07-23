@@ -95,7 +95,7 @@ int main(int /*argc*/, char** /*argv*/)
         row["name"].get(name); // asset iname
 
         // write the "end_warranty_date" metric
-        const int ttl = 12 * 60 * 60; // half a day (sec)
+        const int ttl = 12 * 60 * 60; // 12 hours (sec)
         int r = fty::shm::write_metric(name, keytag, std::to_string(day_diff), "day", ttl);
         if (r == 0) {
             log_info("%s: %s@%s = %d days (ttl: %d)",
