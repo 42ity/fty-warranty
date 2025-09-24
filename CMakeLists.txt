@@ -1,24 +1,25 @@
 cmake_minimum_required(VERSION 3.13)
-##############################################################################################################
+cmake_policy(VERSION 3.13)
 
 project(fty-warranty
   VERSION 1.0.0
-  DESCRIPTION "Agent sending metrics about warranty expiration"
-  LANGUAGES CXX)
+  DESCRIPTION "fty-warranty"
+)
 
-##############################################################################################################
 find_package(fty-cmake PATHS ${CMAKE_BINARY_DIR}/fty-cmake)
+
 ##############################################################################################################
 
 etn_target(exe biostimer-warranty-metric
     SOURCES
-        src/biostimer_warranty_metric.cc
+        src/*.cc
     USES_PRIVATE
-        tntdb
         cxxtools
-        fty_shm
+        tntdb
         fty_common_db
         fty_common_logging
+        fty_shm
+        fty_proto
     TARGET_DESTINATION
         "${CMAKE_INSTALL_LIBEXECDIR}"
 )

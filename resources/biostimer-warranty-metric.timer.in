@@ -1,5 +1,5 @@
 [Unit]
-Description=42ity-Timer to regularly send warranty metrics
+Description=@PROJECT_NAME@ timer
 # For the timer unit, we just need it to tick. Until the EULA wizard is passed,
 # it should however suffice that the timer runs and occasionally tries to start
 # the service unsuccessfully once a day or so...
@@ -12,8 +12,8 @@ PartOf=multi-user.target
 [Timer]
 # Time to wait after booting before we run first time
 OnBootSec=60min
-### Run every night
-OnCalendar=*-*-* 04:20:00
+# Run related service every 4 hours since midnight
+OnCalendar=0/4:00:00
 # Run instantly if last run was skipped (e.g. system powered off)
 # But do not re-run if triggered early by e.g. bios.target restart or watchdog
 Persistent=true

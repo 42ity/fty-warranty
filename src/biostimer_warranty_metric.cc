@@ -1,5 +1,5 @@
 /*  =========================================================================
-    warranty_metric - Agent sending metrics about warranty expiration
+    warranty_metric - Agent producing warranty expiration metrics
 
     Copyright (C) 2014 - 2020 Eaton
 
@@ -19,77 +19,143 @@
     =========================================================================
 */
 
-/// warranty_metric - Agent sending metrics about warranty expiration
+/// Agent producing warranty expiration metrics
 
-#include <fty_common_db_asset.h>
 #include <fty_common_db_dbpath.h>
-#include <fty_log.h>
-#include <functional>
-#include <tntdb.h>
+#include <fty_common_db_asset.h>
+#include <fty_proto.h>
 #include <fty_shm.h>
-#include <chrono>
-#include <thread>
+#include <fty_log.h>
 
-#define NAME "warranty-metric"
-uint32_t TTL = 24 * 60 * 60; //[s]
+#include <tntdb.h>
+#include <time.h>
+#include <string>
+#include <functional>
 
-/// Tool will send following messages on the stream METRICS
-///
-///  SUBJECT: end_warranty_date@device
-///           value now() - end_warranty_date
-int main(int /*argc*/, char** /*argv*/)
+static const char* AGENT_NAME = "fty-warranty";
+
+// compute the day diff from now to warranty date
+static int compute_date_distance(const std::string& date, int& day_diff)
 {
-    ManageFtyLog::setInstanceFtylog(NAME, FTY_COMMON_LOGGING_DEFAULT_CFG);
-
-    std::function<void(const tntdb::Row&)> cb = [](const tntdb::Row& row) {
-        std::string name;
-        row["name"].get(name);
-
-        std::string keytag;
-        row["keytag"].get(keytag);
-
-        std::string date;
-        row["date"].get(date);
-
-        int day_diff;
-        {
-            struct tm tm_ewd;
-            ::memset(&tm_ewd, 0, sizeof(struct tm));
-
-            char* ret = ::strptime(date.c_str(), "%Y-%m-%d", &tm_ewd);
-            if (ret == NULL) {
-                log_error("Cannot convert %s to date, skipping", date.c_str());
-                return;
-            }
-
-            time_t     ewd = ::mktime(&tm_ewd);
-            time_t     now = ::time(NULL);
-            struct tm* tm_now_p;
-            tm_now_p          = ::gmtime(&now);
-            tm_now_p->tm_hour = 0;
-            tm_now_p->tm_min  = 0;
-            tm_now_p->tm_sec  = 0;
-            now               = ::mktime(tm_now_p);
-
-            // end_warranty_date (s) - now (s) -> to days
-            day_diff = int(std::ceil((ewd - now) / (60 * 60 * 24)));
-            log_debug("day_diff: %d", day_diff);
+    time_t warranty = 0; // warranty date
+    {
+        struct tm tm_ewd;
+        memset(&tm_ewd, 0, sizeof(tm_ewd));
+        char* ret = strptime(date.c_str(), "%Y-%m-%d", &tm_ewd);
+        if (!ret) {
+            log_error("%s: Cannot convert %s to date", AGENT_NAME, date.c_str());
+            return -1;
         }
-
-        log_debug("name: %s, keytag: %s, date: %s", name.c_str(), keytag.c_str(), date.c_str());
-
-        fty::shm::write_metric(name, keytag, std::to_string(day_diff), "day", int(3 * TTL));
-    };
-
-    // unchecked errors with connection, the tool will fail otherwise
-    tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-    int               r    = DBAssets::select_asset_element_all_with_warranty_end(conn, cb);
-    if (r == -1) {
-        log_error("Error in element selection");
-        exit(EXIT_FAILURE);
+        warranty = mktime(&tm_ewd); // epoch, sec
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    time_t now = time(NULL);
+    {
+        struct tm* tm_now_p = gmtime(&now);
+        // check-null-pointer ***commented*** to pass the CI Jenkins coverity-analyse step (the CI fail if the cov error report is not produced (file-not-found))
+        /* if (!tm_now_p) {
+            log_error("%s: Cannot convert current time (error: %s)", AGENT_NAME, strerror(errno));
+            return -1;
+        }*/
+        tm_now_p->tm_hour = tm_now_p->tm_min = tm_now_p->tm_sec = 0;
+        now = mktime(tm_now_p); // day truncated, epoch, sec
+    }
 
-    exit(EXIT_SUCCESS);
+    // number of days below/after the warranty date
+    // >=0: the warranty expires in less than X days
+    //  <0: the warranty expired X days ago
+    day_diff = int(std::ceil((warranty - now) / (24 * 60 * 60)));
+    return 0;
+}
+
+int main(int /*argc*/, char** /*argv*/)
+{
+    std::function<void(const tntdb::Row&)> cb = [] (const tntdb::Row& row) {
+        // handle *only* active assets
+        std::string status;
+        row["status"].get(status);
+        if (status != "active") {
+            return;
+        }
+
+        // REQUIRE keytag = end_warranty_date
+        std::string keytag;
+        row["keytag"].get(keytag);
+        if (keytag != "end_warranty_date") {
+            log_error("%s: Unexpected keytag (%s)", AGENT_NAME, keytag.c_str());
+            return;
+        }
+
+        // compute the day diff from now
+        std::string date;
+        row["date"].get(date); // warranty date
+        int day_diff{0}; // days
+        compute_date_distance(date, day_diff);
+
+        std::string name;
+        row["name"].get(name); // asset iname
+
+        // write the "end_warranty_date" metric
+        fty_proto_t* proto = fty_proto_new(FTY_PROTO_METRIC);
+        if (proto) {
+            // see systemd timer configuration (OnCalendar=)
+            const uint32_t ttl{12 * 60 * 60}; // 12 hours (sec)
+
+            fty_proto_set_name(proto, "%s", name.c_str()); // asset
+            fty_proto_set_type(proto, "%s", keytag.c_str());
+            fty_proto_set_value(proto, "%d", day_diff);
+            fty_proto_set_unit(proto, "%s", "day");
+            fty_proto_set_ttl(proto, ttl);
+
+            // mark the metric as 'computed' (see outage metric computatiion (fty-outage))
+            fty_proto_aux_insert(proto, "x-cm-count", "%d", 0);
+
+            int r = fty_shm_write_metric_proto(proto);
+            if (r == 0) {
+                log_info("%s: %s@%s = %d days (ttl: %d)",
+                    AGENT_NAME, keytag.c_str(), name.c_str(), day_diff, ttl);
+            }
+            else {
+                log_error("%s: write_metric '%s@%s' failed (r: %d)",
+                    AGENT_NAME, keytag.c_str(), name.c_str(), r);
+            }
+        }
+        else {
+            log_error("%s: proto_new %s@%s failed",
+                AGENT_NAME, keytag.c_str(), name.c_str());
+        }
+        fty_proto_destroy(&proto);
+    };
+
+    ManageFtyLog::setInstanceFtylog(AGENT_NAME, FTY_COMMON_LOGGING_DEFAULT_CFG);
+
+    log_info("%s started", AGENT_NAME);
+
+    // first, remove end_warranty_date metrics from shm
+    {
+        const int ttl{1}; // metric should be removed on the next reading (sec)
+        fty::shm::shmMetrics results;
+        fty::shm::read_metrics(".*", ".*end_warranty_date", results);
+        for (const auto& it : results) {
+            fty_proto_t* p = it;
+            if (p) {
+                log_info("%s: set %s@%s ttl to %d", AGENT_NAME, fty_proto_type(p), fty_proto_name(p), ttl);
+                fty_proto_set_ttl(p, ttl);
+                fty::shm::write_metric(p);
+            }
+        }
+    }
+
+    // finally, handle assets owning end_warranty_date attribute
+    {
+        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
+        int r = DBAssets::select_asset_element_all_with_warranty_end(conn, cb);
+        if (r != 0) {
+            log_error("%s: Error in element selection (r: %d)", AGENT_NAME, r);
+            return EXIT_FAILURE;
+        }
+    }
+
+    log_info("%s ended", AGENT_NAME);
+    return EXIT_SUCCESS;
 }
